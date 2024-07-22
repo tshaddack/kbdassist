@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="pragma" content="no-cache; charset=utf-8" />
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Keyboard Assistant</title>
+<style type="text/css">
+
+body {background-color:#FFFFDD}
+
+//td {vertical-align:top;padding:0px;margin:0px}
+p {text-align:justify;margin-bottom:0px}
+td.gchord {font-size:75%;font-weight:bold;padding:0px;margin:0px;padding-top:0px;padding-right:3px;text-align:left;font-family:verdana,arial;color:#888888;position:relative;top:3px}
+td.gtxt {text-align:left}
+.dettitle {border-bottom:1px lightgray dashed}
+.dettitle2 {border-bottom:1px lightgray dashed}
+
+h2 {margin-top:20px; background-color:xgray}
+h3 {background-color:xyellow;margin-top:30px;text-decoration:underline}
+h4 {padding-left:0px;margin-left:0px;text-decoration:underline;color:#333333}
+ul {margin-top:0px;padding-top:0px}
+.ref {color:gray}
+
+.gr {color:gray}
+.grsm {color:gray;font-size:80%}
+.err {color:red;font-weight:bold}
+
+a {text-color:blue;text-decoration:underline}
+a:HOVER {border-bottom:1px blue;color:red}
+a.index {text-decoration:none}
+a.index:HOVER {text-decoration:underline;color:red}
+
+.preFile {background-color:lightgray;padding:0.5em}
+
+td.imgthumb {vertical-align:top;padding:5px;font-size:80%}
+img.ico {width:12px;height:12px;overflow:visible;position:relative;margin-top:-5px}
+.imginc {max-width:100%;max-height:80vh}
+.imginccap {text-align:left;padding-bottom:0.5em}
+
+div.code {margin:0px;padding:0px;padding-left:30px;}
+.code {font-family:courier,fixed;color:green;}
+
+.cmd {font-family:courier,fixed;color:red;background-color:#FFEEDD;font-weight:bold;white-space:pre-wrap;padding-left:0.5em;;padding-right:0.5em;padding-top:0.5em;padding-bottom:0.5em}
+.cmd::first-line {color:darkred;}
+.cmd::before {content:'> ';}
+
+.cmdresp {font-family:courier,fixed;color:blue;background-color:#EEEEFF;white-space:pre-wrap;padding-left:0.5em;;padding-right:0.5em;}
+.cmdresp::first-line {color:darkblue;}
+.cmdresp::before {content:'  ';}
+
+.comm {font-family:courier,fixed;color:red;background-color:#FFEEDD;font-weight:bold;white-space:pre-wrap;padding-left:0.5em;;padding-right:0.5em;}
+.comm::first-line {color:darkred;}
+.comm::before {content:'> ';}
+
+.commresp {font-family:courier,fixed;color:blue;background-color:#EEEEFF;white-space:pre-wrap;padding-left:0.5em;;padding-right:0.5em;}
+.commresp::first-line {color:darkblue;}
+.commresp::before {content:'< ';}
+
+.bang {font-weight:bold;color:red}
+
+
+// unsupported by everything except apple, so far
+//@media screen and (inverted-colors: inverted) {
+//.cmd {background-color:#0000CC;color:lightblue;}
+//.cmd::first-line: {color:blue}
+//.cmdresp {background-color:#CC0000;color:lightred}
+//.cmdresp::first-line: {color:red}
+//}
+
+
+@media print{
+body {font-size:80%}
+.noprint {display:none;visibility:hidden}
+.xnopbr {page-break-inside:avoid}
+td.gchord: {color:black}
+.nopbr {}
+.preFile {background-color:white;border:1px dotted black}
+}
+</style>
+<meta property="og:title" content="Keyboard Assistant" />
+<meta property="og:type" content="website" />
+<meta property="og:x-url" content="http://:" />
+<meta property="og:description" content="invoke command for keypress or key combination, including press length" />
+</head>
+<body>
+<h1>Keyboard Assistant</h1><hr class="noprint" /><div class="noprint"><a class="index indexlev2" href="#Problem" title="">Problem</a><br /><a class="index indexlev2" href="#Solution" title="Solution">Solution</a><br /><a class="index indexlev2" href="#HIDdevicesprimer" title="HID devices primer">HID devices primer</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#keyeventsnaming" title="HID devices primer.key events naming">key events naming</a></small><br /><a class="index indexlev2" href="#Devices" title="Devices">Devices</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#deviceselection" title="Devices.device selection">device selection</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#deviceeventdebugging" title="Devices.device/event debugging">device/event debugging</a></small><br /><a class="index indexlev2" href="#keytoactionmapping" title="key to action mapping">key to action mapping</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#keyeventnamingandmodifierkeyshandling" title="key to action mapping.key event naming and modifier keys handling">key event naming and modifier keys handling</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev4" href="#keypresslength" title="key to action mapping.key event naming and modifier keys handling.key press length">key press length</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev4" href="#eventmonitorexample" title="key to action mapping.key event naming and modifier keys handling.event monitor example">event monitor example</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev4" href="#eventmonitorexamplefulleventlist" title="key to action mapping.key event naming and modifier keys handling.event monitor example, full event list">event monitor example, full event list</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#configfile" title="key to action mapping.config file">config file</a></small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#commandexecution" title="key to action mapping.command execution">command execution</a></small><br /><a class="index indexlev2" href="#Commandlineoptions" title="Commandline options">Commandline options</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a class="index indexlev3" href="#examples" title="Commandline options.examples">examples</a></small><br /><a class="index indexlev2" href="#Download" title="Download">Download</a><br /><a class="index indexlev2" href="#TODO" title="TODO">TODO</a><br /></div><hr /><a name="Problem"></a><h2> Problem
+</h2>
+<p>
+Fiddling with a&nbsp;CNC machine or a&nbsp;3d printer requires sending arbitrary commands. Setting up a&nbsp;workpiece,
+adjusting the&nbsp;head, running calibration or touch probe, all gets rather annoying when it involves a&nbsp;disco dance
+between the&nbsp;machine and the&nbsp;laptop. Dedicated terminal is not always worth the&nbsp;cost.
+</p>
+<hr /><a name="Solution"></a><h2> Solution
+</h2>
+<p>
+A regular USB keyboard gets attached to the&nbsp;machine. A python script (what else these days) is written
+to take the&nbsp;<a class="w" href="https://en.wikipedia.org/wiki/USB_HID" title="Wikipedia link: USB HID" target="_blank">HID</a> events from selected devices, track key press/release events to facilitate
+key combinations, and measure time from key press to release to differentiate between short, long, and even longer
+keypresses.
+</p>
+<hr /><a name="HIDdevicesprimer"></a><h2> HID devices primer
+</h2>
+<p>
+The HID-class devices, or human-interface devices, are standardized devices providing events from the
+user interface. An example of an event is a&nbsp;key press, key repeat or key release, a&nbsp;mouse button press or release,
+a touchscreen touch, a&nbsp;mouse move, or a&nbsp;joystick move.
+</p>
+<p>
+Such input device manifests in the&nbsp;linux system as a&nbsp;<span class="code">/dev/input/eventX</span> (or similar) device node. Events
+(small binary data chunks) and device descriptors (giving meaning to the&nbsp;binary mess) can be acquired from the&nbsp;device.
+</p>
+<p>
+Many devices have multiple sub-devices in them. A keyboard controller can easily become four /dev/input devices, one for
+regular keypresses, one for multimedia keys (consumer control), one for power/sleep buttons (system control), and one for
+mouse events. Often the&nbsp;full set of supported functions claimed is not realized in hardware, as the&nbsp;same controller
+may be missing keys or other peripherals. Sometimes these can be hacked into the&nbsp;hardware.
+</p>
+<a name="keyeventsnaming"></a><h3> key events naming
+</h3>
+<p>
+The keys have assigned numbers, paired to names. Partial example:
+<pre class="">       ('KEY_ESC', 1)
+       ('KEY_1', 2)
+       ('KEY_2', 3)
+       ('KEY_3', 4)
+       ('KEY_4', 5)
+       ('KEY_5', 6)
+...
+<br/>       ('KEY_J', 36)
+       ('KEY_K', 37)
+       ('KEY_L', 38)
+       ('KEY_SEMICOLON', 39)
+       ('KEY_APOSTROPHE', 40)
+       ('KEY_GRAVE', 41)
+       ('KEY_LEFTSHIFT', 42)
+       ('KEY_BACKSLASH', 43)
+...
+<br/>       ('KEY_CHANNELUP', 402)
+       ('KEY_CHANNELDOWN', 403)
+       ('KEY_LAST', 405)
+       ('KEY_NEXT', 407)
+       ('KEY_RESTART', 408)
+</pre></p>
+<p>
+On the&nbsp;raw events level, there is no difference between keys. A key "A" is the&nbsp;same KEY_A whether pressed together
+with other keys or alone. The modifier keys like ctrl or shift or so have no special meaning here, that is handled later
+downstream in the&nbsp;processing.
+</p>
+<p>
+The keypress events are of three types:
+<ul><li> key down
+</li><li> key repeat
+</li><li> key up
+</li></ul></p>
+<hr /><a name="Devices"></a><h2> Devices
+</h2>
+<p>
+The <a class="a" href="https://python-evdev.readthedocs.io/en/latest/" title="remote link: https://python-evdev.readthedocs.io/en/latest/" target="_blank">python-evdev</a> library is chosen as the&nbsp;core process.
+</p>
+<a name="deviceselection"></a><h3> device selection
+</h3>
+<p>
+The evdev library provides three pieces of information for each device, via evdev.list_devices():
+<ul><li> <span class="code">path</span>, the&nbsp;/dev/input/whatever device node
+</li><li> <span class="code">phys</span>, the&nbsp;physical device location in the&nbsp;tree
+</li><li> <span class="code">name</span>, the&nbsp;device descriptor name
+</li></ul>More data may be possible to request via additional library calls.
+</p>
+<p>
+Multiple devices can be opened at once:
+<ul><li> all, suitable for less work with only one HID device attached
+</li><li> name match, where a&nbsp;substring has to match part of the&nbsp;device name
+</li><li> device, where the&nbsp;device path is explicitly specified (may not be the&nbsp;best as the&nbsp;numbers change when devices are disconnected and reconnected)
+</li><li> phys path, where the&nbsp;beginning (specified as prefix-suffix pair) has to match up to a&nbsp;slash; for convenience, this is split to prefix and suffix.
+</li></ul></p>
+<p>
+Examples:
+</p>
+<p>
+Raspberry Pi 3B with a&nbsp;single USB keyboard
+<pre class="">path: /dev/input/event3&nbsp;  addr: usb-3f980000.usb-1.4/input1&nbsp;      name: NOVATEK USB Keyboard
+path: /dev/input/event2&nbsp;  addr: usb-3f980000.usb-1.4/input1&nbsp;      name: NOVATEK USB Keyboard Consumer Control
+path: /dev/input/event1&nbsp;  addr: usb-3f980000.usb-1.4/input1&nbsp;      name: NOVATEK USB Keyboard System Control
+path: /dev/input/event0&nbsp;  addr: usb-3f980000.usb-1.4/input0&nbsp;      name: NOVATEK USB Keyboard
+</pre></p>
+<p>
+Raspberry Pi 2B with a&nbsp;wireless 2.4GHz keyboard dongle, a&nbsp;Logitech wireless dongle, and a&nbsp;touchscreen
+<pre class="">path: /dev/input/event5&nbsp;  phys: usb-3f980000.usb-1.3.4/input1&nbsp;    name: 2.4G Composite Devic System Control
+path: /dev/input/event4&nbsp;  phys: usb-3f980000.usb-1.3.4/input1&nbsp;    name: 2.4G Composite Devic Consumer Control
+path: /dev/input/event3&nbsp;  phys: usb-3f980000.usb-1.3.4/input1&nbsp;    name: 2.4G Composite Devic Mouse
+path: /dev/input/event2&nbsp;  phys: usb-3f980000.usb-1.3.4/input0&nbsp;    name: 2.4G Composite Devic
+path: /dev/input/event1&nbsp;  phys: usb-3f980000.usb-1.3.3/input2:1&nbsp;  name: Logitech K230
+path: /dev/input/event0&nbsp;  phys: usb-3f980000.usb-1.3.1/input0&nbsp;    name: 深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标
+</pre></p>
+<p>
+a give-or-take standard PC with a&nbsp;keyboard and some internal peripherals
+<pre class="">path: /dev/input/event5&nbsp;  addr: ALSA                              name: HDA Intel PCH Headphone
+path: /dev/input/event4&nbsp;  addr: eeepc-wmi/input0&nbsp;                 name: Eee PC WMI hotkeys
+path: /dev/input/event3&nbsp;  addr: isa0061/input0&nbsp;                   name: PC Speaker
+path: /dev/input/event2&nbsp;  addr: LNXPWRBN/button/input0&nbsp;           name: Power Button
+path: /dev/input/event1&nbsp;  addr: PNP0C0C/button/input0&nbsp;            name: Power Button
+path: /dev/input/event0&nbsp;  addr: isa0060/serio0/input0&nbsp;            name: AT Translated Set 2&nbsp;keyboard
+</pre></p>
+<p>
+The raspberry pi boards have a&nbsp;single USB controller, with <span class="code">usb-3f980000.usb-1.</span> as the&nbsp;constant part, followed by
+dot-separated number of port (one number on the&nbsp;raspi port itself, then additional ones for the&nbsp;eventual chain of
+hubs). This allows addressing of devices via physical port location; different keyboards can be plugged into the
+same port and still operate properly.
+</p>
+<p>
+When raspi board is detected, the&nbsp;constant part is set to the&nbsp;phys prefix, so devices can be addressed as "4" (for the&nbsp;usb-1.4&nbsp;ones in the
+3B example), or "3.4", "3.3" or "3.1" for the&nbsp;ones from the&nbsp;2B example. The part after the&nbsp;end slash is ignored; eg.
+the 3B example opens both input0&nbsp;and input1&nbsp;devices, or, all four /dev/input/eventX ones.
+</p>
+<a name="deviceeventdebugging"></a><h3> device/event debugging
+</h3>
+<p>
+The above examples are obtained by listing the&nbsp;available HID devices.
+</p>
+<p>
+It is also possible to list the&nbsp;available events, reported by the&nbsp;HID descriptor:
+<ul><li> <a class="F" href="events-all-pi3.txt" title="local file">events-all-pi3.txt</a>
+</li><li> <a class="F" href="events-all-pi2.txt" title="local file">events-all-pi2.txt</a>
+</li><li> <a class="F" href="events-all-pc.txt" title="local file">events-all-pc.txt</a>
+</li></ul></p>
+<p>
+For tracing the&nbsp;real appearance of events, an option is provided that skips loading of the&nbsp;execute commands,
+and instead just shows the&nbsp;event name and the&nbsp;device originating it.
+</p>
+<hr /><a name="keytoactionmapping"></a><h2> key to action mapping
+</h2>
+<p>
+To do something useful, the&nbsp;keypress event has to not be just recognized, but also followed up with
+an action. This is achieved by pairing a&nbsp;command to execute.
+</p>
+<a name="keyeventnamingandmodifierkeyshandling"></a><h3> key event naming and modifier keys handling
+</h3>
+<p>
+Combo keys can be useful. Different functionalities can be assigned to combination of SHIFT-key, CTRL-key, ALT-SHIFT-key,
+or even CAPS-WIN-CTRL-key. Caps Lock, otherwise pretty useless, can be used as another modifier key, eg. for various macros.
+</p>
+<p>
+The kbdassist code handles the&nbsp;modifier keys by adding them into a&nbsp;set-type variable when pressed, removed when
+released.
+</p>
+<p>
+When a&nbsp;key is pressed, a&nbsp;timestamp is remembered in order to measure the&nbsp;keypress length.
+When the&nbsp;key is released, a&nbsp;handlekey() function is invoked, with the&nbsp;keypress length, and the&nbsp;list of pressed and
+not-yet-released keys. Presence of modifier keys can be checked in the&nbsp;list, and the&nbsp;active ones are prepended
+to the&nbsp;key name as prefixes.
+</p>
+<p>
+The main key name gets the&nbsp;KEY_ prefix stripped, to simplify the&nbsp;naming.
+</p>
+<p>
+The modifier keys are as follows:
+<ul><li> KEY_CAPSLOCK: prepends CAPS_
+</li><li> KEY_LEFTMETA, KEY_RIGHTMETA: prepends WIN_
+</li><li> KEY_LEFTALT, KEY_RIGHTALT: prepends ALT_
+</li><li> KEY_LEFTCTRL, KEY_RIGHTCTRL: prepends CTRL_
+</li><li> KEY_LEFTSHIFT, KEY_RIGHTSHIFT: prepends SHIFT_
+</li></ul></p>
+<p>
+The order of the&nbsp;keys is fixed. All of them together with KEY_X result in CAPS_WIN_ALT_CTRL_SHIFT_X.
+</p>
+<p>
+The key modifiers are usual but can be done as arbitrary. For use of a&nbsp;numeric keypad, the&nbsp;+,-,*,/,Enter
+and other keys can be assigned as modifiers, whether by separate names
+or by adding them to definitions of existing ones. MOD: and MOD_CLEAR can be used for modifying the
+default table. The -C option lists, inter alia, the&nbsp;configured modifiers and their prefix order.
+</p>
+<p>
+On release of a&nbsp;modifier key, the&nbsp;keypress handler is invoked on it too. Just do not assign anything
+to execute with these alone.
+</p>
+<a name="keypresslength"></a><h4> key press length
+</h4>
+<p>
+The code recognizes three brackets of keypress durations; normal, long, verylong. The length is added
+to the&nbsp;key event name as another prefix, the&nbsp;very first from the&nbsp;left:
+<ul><li> (none) - for short keypress
+</li><li> LONG_ - for long keypress, by default above 300&nbsp;milliseconds
+</li><li> VLONG_ - for very long keypress, by default above 1000&nbsp;milliseconds
+</li></ul></p>
+<p>
+A long ctrl-X event will therefore be LONG_CTRL_X. A very long press of key 'C' will be VLONG_C.
+</p>
+<p>
+Unless strict timing is requested (<span class="code">-T</span> option), event not defined for a&nbsp;longer keypress
+will be attempted with shorter definition; VLONG_C if not found will be tried as LONG_C and then as C.
+</p>
+<p>
+In that case, action defined for C will be executed for LONG_C and VLONG_C as well. Action defined for LONG_D
+will be executed also with VLONG_D, but ignored by event D.
+</p>
+<a name="eventmonitorexample"></a><h4> event monitor example
+</h4>
+<pre class="">KEY: UP   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: ENTER   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: DOWN   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: SEARCH   |   device /dev/input/event4, name "2.4G Composite Devic Consumer Control", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: HOMEPAGE   |   device /dev/input/event4, name "2.4G Composite Devic Consumer Control", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: BTN_LEFT   |   device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: BTN_RIGHT   |   device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: LONG_BTN_RIGHT   |   device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: VLONG_BTN_RIGHT   |   device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.3.4/input1"
+KEY: W   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: E   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: R   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: SHIFT_W  {'KEY_W', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: SHIFT_E  {'KEY_E', 'KEY_W', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: SHIFT_R  {'KEY_E', 'KEY_R', 'KEY_W', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: LONG_LEFTSHIFT   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CAPS_W  {'KEY_CAPSLOCK', 'KEY_W'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CAPS_E  {'KEY_CAPSLOCK', 'KEY_E', 'KEY_W'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: LONG_CAPSLOCK   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: VLONG_CAPS_SHIFT_LEFTSHIFT  {'KEY_CAPSLOCK', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: VLONG_CAPSLOCK   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: SHIFT_G  {'KEY_G', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: LONG_LEFTSHIFT   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CAPS_G  {'KEY_CAPSLOCK', 'KEY_G'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: LONG_CAPSLOCK   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CTRL_SHIFT_G  {'KEY_LEFTCTRL', 'KEY_G', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CAPS_SHIFT_Y  {'KEY_Y', 'KEY_CAPSLOCK', 'KEY_T', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: VLONG_CAPS_SHIFT_LEFTSHIFT  {'KEY_Y', 'KEY_CAPSLOCK', 'KEY_T', 'KEY_LEFTSHIFT'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: VLONG_CAPSLOCK   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+KEY: CTRL_C  {'KEY_C', 'KEY_LEFTCTRL'}   |   device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.3.4/input0"
+Ctrl-C, exiting
+</pre><b>Beware, some more unusual key combinations may not be handled by the&nbsp;scanning matrix of a&nbsp;given keyboard device. Test, test, test!</b>
+<p>
+This is what the&nbsp;-E (and -M) option is for.
+</p>
+<a name="eventmonitorexamplefulleventlist"></a><h4> event monitor example, full event list
+</h4>
+<p>
+obtained via -F -A (full list, all devices)
+</p>
+<pre class=""> ----  device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.5.2/input0"
+  type 4, code   4, val 0x0007001b | event at 1669771513.161219, code 04, type 04, val 458779, MSC_SCAN
+  type 1, code  45, val          1&nbsp;| key event at 1669771513.161219, 45&nbsp;(KEY_X), down
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771513.161219, SYN_REPORT
+ ----  device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.5.2/input0"
+  type 1, code  45, val          2&nbsp;| key event at 1669771513.413038, 45&nbsp;(KEY_X), hold
+  type 0, code   0, val          1&nbsp;| synchronization event at 1669771513.413038, SYN_REPORT
+ ----  device /dev/input/event2, name "2.4G Composite Devic", phys "usb-3f980000.usb-1.5.2/input0"
+  type 1, code  45, val          2&nbsp;| key event at 1669771513.863037, 45&nbsp;(KEY_X), hold
+  type 0, code   0, val          1&nbsp;| synchronization event at 1669771513.863037, SYN_REPORT
+  type 4, code   4, val 0x0007001b | event at 1669771513.863037, code 04, type 04, val 458779, MSC_SCAN
+  type 1, code  45, val          0&nbsp;| key event at 1669771513.863037, 45&nbsp;(KEY_X), up
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771513.863037, SYN_REPORT
+
+ ----  device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.5.2/input1"
+  type 2, code   1, val          3&nbsp;| relative axis event at 1669771593.527032, REL_Y
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771593.527032, SYN_REPORT
+ ----  device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.5.2/input1"
+  type 2, code   0, val         -1&nbsp;| relative axis event at 1669771593.544034, REL_X
+  type 2, code   1, val          2&nbsp;| relative axis event at 1669771593.544034, REL_Y
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771593.544034, SYN_REPORT
+
+ ----  device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.5.2/input1"
+  type 4, code   4, val 0x00090001&nbsp;| event at 1669771602.661007, code 04, type 04, val 589825, MSC_SCAN
+  type 1, code 272, val          1&nbsp;| key event at 1669771602.661007, 272&nbsp;(['BTN_LEFT', 'BTN_MOUSE']), down
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771602.661007, SYN_REPORT
+ ----  device /dev/input/event3, name "2.4G Composite Devic Mouse", phys "usb-3f980000.usb-1.5.2/input1"
+  type 4, code   4, val 0x00090001&nbsp;| event at 1669771602.806020, code 04, type 04, val 589825, MSC_SCAN
+  type 1, code 272, val          0&nbsp;| key event at 1669771602.806020, 272&nbsp;(['BTN_LEFT', 'BTN_MOUSE']), up
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771602.806020, SYN_REPORT
+
+ ----  device /dev/input/event0, name "深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标", phys "usb-3f980000.usb-1.3.1/input0"
+  type 3, code  47, val          2&nbsp;| absolute axis event at 1669771626.693009, ABS_MT_SLOT
+  type 3, code  57, val         59&nbsp;| absolute axis event at 1669771626.693009, ABS_MT_TRACKING_ID
+  type 3, code  53, val        638&nbsp;| absolute axis event at 1669771626.693009, ABS_MT_POSITION_X
+  type 3, code  54, val        388&nbsp;| absolute axis event at 1669771626.693009, ABS_MT_POSITION_Y
+  type 3, code  58, val         24&nbsp;| absolute axis event at 1669771626.693009, ABS_MT_PRESSURE
+  type 1, code 330, val          1&nbsp;| key event at 1669771626.693009, 330&nbsp;(BTN_TOUCH), down
+  type 3, code   0, val        638&nbsp;| absolute axis event at 1669771626.693009, ABS_X
+  type 3, code   1, val        388&nbsp;| absolute axis event at 1669771626.693009, ABS_Y
+  type 3, code  24, val         24&nbsp;| absolute axis event at 1669771626.693009, ABS_PRESSURE
+  type 4, code   5, val 0x00000000&nbsp;| event at 1669771626.693009, code 05, type 04, val 00, MSC_TIMESTAMP
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771626.693009, SYN_REPORT
+ ----  device /dev/input/event0, name "深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标", phys "usb-3f980000.usb-1.3.1/input0"
+  type 4, code   5, val 0x00827800&nbsp;| event at 1669771626.704959, code 05, type 04, val 8550400, MSC_TIMESTAMP
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771626.704959, SYN_REPORT
+ ----  device /dev/input/event0, name "深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标", phys "usb-3f980000.usb-1.3.1/input0"
+  type 4, code   5, val 0x00ff779c | event at 1669771626.715957, code 05, type 04, val 16742300, MSC_TIMESTAMP
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771626.715957, SYN_REPORT
+ ----  device /dev/input/event0, name "深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标", phys "usb-3f980000.usb-1.3.1/input0"
+  type 4, code   5, val 0x018ffe70&nbsp;| event at 1669771626.734969, code 05, type 04, val 26214000, MSC_TIMESTAMP
+  type 0, code   0, val          0&nbsp;| synchronization event at 1669771626.734969, SYN_REPORT
+</pre><p>
+Use -q to silence the&nbsp;SYN_REPORT events.
+</p>
+<p>
+Values for type 0&nbsp;(SYN), 1&nbsp;(KEY, keypress), 2&nbsp;(REL, relative pointer move) and 3&nbsp;(ABS, absolute pointer coordinates) are shown as decimal.
+</p>
+<p>
+Values for type 4&nbsp;(MSC, misc), 5&nbsp;(SW, switch) and greater are shown as hexadecimal, as that's easier to look-and-see decode the
+position-encoded and binary values. MSC_ descriptions are hardcoded, evdev did not decode, may improve in later versions.
+</p>
+<p>
+Ctrl-C is detected via scancodes, to facilitate termination of the&nbsp;process in order to avoid locking the&nbsp;hapless admin out of the&nbsp;terminal.
+(Other remedy, connect in via SSH or so and kill the&nbsp;process. Or reboot the&nbsp;device.)
+</p>
+<a name="configfile"></a><h3> config file
+</h3>
+<p>
+The actions are specified in a&nbsp;config file. By default, it can be in <span class="code">~/.kbdassist.cfg</span>, or <span class="code">/etc/kbdassist.cfg</span>.
+</p>
+<p>
+The actions are apecified as pairs of key name, '=', and a&nbsp;command.
+</p>
+<p>
+For control of 3d printers and other Octoprint-based devices, <a class="P" href="https://www.improwis.com/projects/sw_8control" title="local project" target="_blank">sw_8control</a> is leveraged.
+</p>
+<p>
+Example:
+<pre class=""> # cancel print
+ VLONG_C = 8cancel
+ LONG_C  = 8cancel
+ CAPS_C  = 8cancel
+ CTRL_C  = 8cancel
+
+ # start print
+ VLONG_CAPS_P = 8print
+
+ # pause/resume
+ P       = 8pause
+ VLONG_P = 8resume
+
+ # move and calibrate
+ # calibrate square, goto center
+ VLONG_CAPS_C = 8gmulti g29&nbsp;g0x0y0
+ # zero to bed
+ VLONG_CAPS_Z = 8gmulti g30&nbsp;g92z0&nbsp;g0z10f2000
+ CAPS_Z       = 8gmulti g30&nbsp;g92z0&nbsp;g0z10f2000
+
+ # home
+ VLONG_H = 8home
+</pre></p>
+<p>
+For moving the&nbsp;head, many repeated commands with minor variants have to be used. To avoid spamming the&nbsp;config,
+two separate tables are used:
+<ul><li> a&nbsp;list of modifier keys with the&nbsp;associated distances to move
+</li><li> a&nbsp;list of commands with '#' as placeholder for the&nbsp;distance
+</li></ul></p>
+<p>
+Example:
+<pre class=""> # JOGPREF: prefix = distance
+ JOGPREF: CTRL_  = 0.1
+ JOGPREF:        = 1
+ JOGPREF: LONG_  = 5
+ JOGPREF: SHIFT_ = 10
+ JOGPREF: VLONG_ = 20
+ JOGPREF: CAPS_  = 50
+
+ # JOGKEY: key = command, # substituted for distance
+ JOGKEY: LEFT     = 8jog # -0&nbsp;-0
+ JOGKEY: RIGHT    = 8jog -# -0&nbsp;-0
+ JOGKEY: UP       = 8jog -0&nbsp;-# -0
+ JOGKEY: DOWN     = 8jog -0&nbsp;# -0
+ JOGKEY: PAGEUP   = 8jog -#
+ JOGKEY: HOME     = 8jog -#
+ JOGKEY: PAGEDOWN = 8jog #
+ JOGKEY: END      = 8jog #
+</pre></p>
+<p>
+This generates the&nbsp;head movement commands for six distances from 0.1&nbsp;to 50&nbsp;mm per step, and for all three axes
+(with Z axis having both pgup/pgdn and home/end keys as synonymous, to allow for different keyboard layouts).
+Much less annoying to write 6+8&nbsp;lines than to explicitly handle 6*8=48&nbsp;ones.
+</p>
+<p>
+For specifying different keypress lengths, the&nbsp;defaults can be overriden by the&nbsp;config file:
+<pre class=""> # VLONG, LONG: time in milliseconds
+ VLONG: 1000
+ LONG:  300
+</pre></p>
+<p>
+For modifying the&nbsp;default modkey prefixes, use directives MOD_CLEAR (for clearing the&nbsp;default mod table if needed), and MOD: for setting the&nbsp;key/prefix pair:
+<pre class=""> MOD_CLEAR
+ MOD: KEY_TAB = TAB
+ MOD: KEY_RIGHTSHIFT = RSHIFT
+</pre>Beware of the&nbsp;order. The prefixes, as defined, are added right to left. The keys are stored in a&nbsp;dict, so overwriting an existing key will
+keep the&nbsp;original dict order and may be confusing.
+</p>
+<p>
+A selection of device by name can be done in the&nbsp;config file as well:
+<pre class=""> # fraction of device name, to match
+ DEVNAME:NOVATEK
+</pre>This can be overriden by the&nbsp;commandline options.
+</p>
+<p>
+For defining the&nbsp;key combination to exit the&nbsp;process, when running from the&nbsp;console:
+<pre class=""> # key combination for process exiting, empty to disable, make sure the&nbsp;combo is valid!
+ EXITPROCESS: ALT_CTRL_SHIFT_C
+</pre></p>
+<a name="commandexecution"></a><h3> command execution
+</h3>
+<p>
+Normally, for a&nbsp;notch better performance, subprocess.Popen() call is used. This needs the&nbsp;command name
+and arguments specified as a&nbsp;list. This is parsed from the&nbsp;configfile string via shlex.split() call.
+</p>
+<p>
+Some commands have to be invoked via /bin/sh shell. When the&nbsp;command contains pipe, redirect, or semicolon,
+the os.system() call is used instead.
+</p>
+<p>
+The command is run as a&nbsp;parallel process, non-blocking.
+</p>
+<hr /><a name="Commandlineoptions"></a><h2> Commandline options
+</h2>
+<pre class="preFile">usage: kbdassist.py [-h] [-d DEVICE] [-dn DEVNAME] [-da DEVADDR]
+                    [-dp DEVPREFIX] [-A] [-l] [-L] [-E] [-M] [-C] [-q] [-v]
+                    [-D] [-T] [-c CONFIG] [--printdefaultconfig] [-F]
+
+executes commands on keypresses and their combinations
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DEVICE, --device DEVICE
+                        /dev/input device
+  -dn DEVNAME, --devname DEVNAME
+                        fraction of device name, default=&quot;&quot;
+  -da DEVADDR, --devaddr DEVADDR
+                        device phys address or suffix (eg. 4, 2.1, 3.2.3),
+                        match to last slash
+  -dp DEVPREFIX, --devprefix DEVPREFIX
+                        device address prefix, default=&quot;&quot;
+  -A, --matchall        match all devices
+  -l, --list            list HID devices present
+  -L, --listevents      list events for matching device(s)
+  -E, --showevents      show detected event names and source devices, ignore
+                        config
+  -M, --forcemods       like -E, but force reading of config/modifier
+  -C, --listcommands    list set commands
+  -q, --quiet           suppress most output
+  -v, --verbose         print more details
+  -D, --dryrun          show command instead of executing
+  -T, --stricttime      do not try VLONG-LONG-normal if longer command not
+                        found
+  -c CONFIG, --config CONFIG
+                        keys config file, default=['~/.kbdassist.cfg',
+                        '~/kbdassist.cfg', './kbdassist.cfg',
+                        '/etc/kbdassist.cfg']
+  --printdefaultconfig  print default config file content
+  -F, --showallevents   show ALL detected events (not just keypresses), ignore
+                        config; -q to suppress SYN_REPORT
+</pre><a name="examples"></a><h3> examples
+</h3>
+<ul><li> list all devices: <span class="code">kbdassist.py -l</span>
+</li><li> list events available for all devices: <span class="code">kbdassist.py -AL</span>
+</li><li> monitor events from all devices, exit via ctrl-C, hardcoded modifiers: <span class="code">kbdassist.py -AE</span>
+</li><li> monitor events from all devices, exit via ctrl-C, read modifiers from default config: <span class="code">kbdassist.py -AEM</span>
+</li><li> list available commands-to-keys mapping, to make sure the&nbsp;system understands the&nbsp;config: <span class="code">kbdassist.py -C</span>
+</li><li> run on all devices with default config: <span class="code">kbdassist.py -A</span>
+</li><li> run on device "NOVATEK USB Keyboard" with bigkbd.cfg file: <span class="code">kbdassist.py -dn NOVATEK -c bigkbd.cfg</span>
+</li><li> generate default config file: <span class="code">kbdassist.py --printdefaultconfig &gt; ~/.kbdassist.cfg</span>
+</li></ul><p>
+Use -v to see what the&nbsp;program is doing, what files are being looked for where, etc.; can save a&nbsp;headscratcher of debugging.
+</p>
+<hr /><a name="Download"></a><h2> Download
+</h2>
+<ul><li> <b><a class="F" href="kbdassist.py" title="local file">kbdassist.py</a></b> - help yourself
+</li></ul><hr /><a name="TODO"></a><h2> TODO
+</h2>
+<ul><li> multiple use of options -d, -da, for selecting more devices at once
+</li><li> maybe possibility to enter strings or numbers as parameters for commands (may be tricky to do without visual feedback)
+</li><li> /etc/udev/rules.d/ recipes to run the&nbsp;assistant on plugging in a&nbsp;device
+</li></ul><!-- feedback -->
+<!-- /feedback -->
+</body>
+</html>

@@ -1,0 +1,6 @@
+[Unit]
+Description=kbdassist for CNC pendant
+
+[Service]
+Type=simple
+ExecStart=/root/kbdassist-wired-KBN01.sh
